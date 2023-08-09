@@ -26,7 +26,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+uint8_t pucByte;
+uint8_t index,TxIndex;
+int ReceiveCompleteFlag = 0;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -41,7 +43,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+extern uint8_t data[ 255 ];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +57,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
@@ -155,6 +158,37 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 1 */
 }
 
-/* USER CODE BEGIN 1 */
+/**
+  * @brief This function handles USART1 interrupt.
+  */
+void USART1_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART1_IRQn 0 */
 
+  /* USER CODE END USART1_IRQn 0 */
+  HAL_UART_IRQHandler(&huart1);
+  /* USER CODE BEGIN USART1_IRQn 1 */
+  HAL_UART_Receive_IT( &huart1, &pucByte, 1 );
+  /* USER CODE END USART1_IRQn 1 */
+}
+
+/* USER CODE BEGIN 1 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+	data[index] = pucByte;
+	TxIndex = index;
+	if(index>=255)
+		index = 0;
+	if(data[index] == '\n')
+	{
+		index = 0;
+		ReceiveCompleteFlag = 1;
+	}
+	else
+	{
+		index++;
+		ReceiveCompleteFlag = 0;
+	}
+
+}
 /* USER CODE END 1 */

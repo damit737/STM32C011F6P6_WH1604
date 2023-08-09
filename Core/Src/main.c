@@ -21,12 +21,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "RW1063.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+extern uint8_t pucByte;
+extern int ReceiveCompleteFlag;
+extern uint8_t TxIndex;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -47,7 +49,7 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+uint8_t data[ 255 ];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,6 +99,11 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_TIM_PWM_Start( &htim3, TIM_CHANNEL_1 );
+
+  HAL_UART_Receive_IT(&huart1, &pucByte, 1);
+
   RW1063_init( &hspi1,
 				CS_GPIO_Port, CS_Pin,
 				RS_GPIO_Port, RS_Pin );
@@ -107,7 +114,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  if(ReceiveCompleteFlag == 1)
+	  {
+		  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+		  HAL_Delay(1);
+		  RW1063_WrCmd(LINE_ONE);
+		  RW1063_writeString(TxIndex,&data[0]);
+		  ReceiveCompleteFlag = 0;
+		  TxIndex = 0;
+		  memset(data, 0, 256);
+	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -210,7 +226,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 1000-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -281,7 +297,7 @@ static void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  __HAL_UART_FLUSH_DRREGISTER(&huart1);
   /* USER CODE END USART1_Init 2 */
 
 }
