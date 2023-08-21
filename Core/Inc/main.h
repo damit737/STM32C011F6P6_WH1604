@@ -46,7 +46,10 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+typedef struct{
+	GPIO_TypeDef *Port;
+	uint16_t Pin;
+}sPhysicalButtonAttribute_t;
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);

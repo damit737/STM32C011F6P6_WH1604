@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "RW1063.h"
+#include "ExHardware.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,11 +34,17 @@ extern uint8_t TxIndex;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+uint8_t UR_MSG0[16]    ="BUTTON RIGHT    ";
+uint8_t UR_MSG1[16]    ="BUTTON LEFT     ";
+uint8_t UR_MSG2[16]    ="BUTTON DOWN     ";
+uint8_t UR_MSG3[16]    ="BUTTON UP       ";
+uint8_t UR_MSG4[16]    ="BUTTON OK       ";
+uint8_t UR_MSG5[16]    ="BUTTON ESC      ";
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+sPhysicalButtonAttribute_t ButtonState[ 6 ];
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -59,12 +66,32 @@ static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+void ButtonSET_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void ButtonSET_Init(void)
+{
+	ButtonState[0].Port = K_RIGHT_GPIO_Port;
+	ButtonState[0].Pin = K_RIGHT_Pin;
 
+	ButtonState[1].Port = K_LEFT_GPIO_Port;
+	ButtonState[1].Pin = K_LEFT_Pin;
+
+	ButtonState[2].Port = K_DOWN_GPIO_Port;
+	ButtonState[2].Pin = K_DOWN_Pin;
+
+	ButtonState[3].Port = K_UP_GPIO_Port;
+	ButtonState[3].Pin = K_UP_Pin;
+
+	ButtonState[4].Port = K_OK_GPIO_Port;
+	ButtonState[4].Pin = K_OK_Pin;
+
+	ButtonState[5].Port = K_ESC_GPIO_Port;
+	ButtonState[5].Pin = K_ESC_Pin;
+
+}
 /* USER CODE END 0 */
 
 /**
@@ -100,30 +127,95 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_PWM_Start( &htim3, TIM_CHANNEL_1 );
+//  HAL_TIM_PWM_Start( &htim3, TIM_CHANNEL_1 );
 
   HAL_UART_Receive_IT(&huart1, &pucByte, 1);
 
   RW1063_init( &hspi1,
 				CS_GPIO_Port, CS_Pin,
 				RS_GPIO_Port, RS_Pin );
+
+  Backlight_Control( BL_ON );
+  Set_Backlight_Duty( 100 );
+
+
+  ButtonSET_Init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-	  if(ReceiveCompleteFlag == 1)
-	  {
+		if(ReceiveCompleteFlag == 1)
+		{
 		  RW1063_WrCmd(0x01);//CLEAR DISPLAY
 		  HAL_Delay(1);
 		  RW1063_WrCmd(LINE_ONE);
-		  RW1063_writeString(TxIndex,&data[0]);
+		  RW1063_writeString(TxIndex-1,&data[0]);
 		  ReceiveCompleteFlag = 0;
 		  TxIndex = 0;
 		  memset(data, 0, 256);
-	  }
+		}
+
+//		if( HAL_GPIO_ReadPin( K_UP_Pin, K_UP_GPIO_Port ) == GPIO_PIN_RESET )
+//		{
+//								  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+//								  HAL_Delay(1);
+//								  RW1063_WrCmd(LINE_ONE);
+//								  RW1063_writeString(16,UR_MSG3);
+//		}
+
+		for( uint8_t counter = 0 ; counter <= 5 ; counter++ )
+		{
+			if( HAL_GPIO_ReadPin( ButtonState[counter].Port, ButtonState[counter].Pin ) == GPIO_PIN_RESET )
+			{
+				if(counter == 0)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG0);
+				}
+				else if(counter == 1)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG1);
+				}
+				else if(counter == 2)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG2);
+				}
+				else if(counter == 3)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG3);
+				}
+				else if(counter == 4)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG4);
+				}
+				else if(counter == 5)
+				{
+					  RW1063_WrCmd(0x01);//CLEAR DISPLAY
+					  HAL_Delay(1);
+					  RW1063_WrCmd(LINE_ONE);
+					  RW1063_writeString(16,UR_MSG5);
+				}
+			}
+		}
+
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -224,9 +316,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
+  htim3.Init.Prescaler = 4800-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 1000-1;
+  htim3.Init.Period = 100-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim3) != HAL_OK)
@@ -351,13 +443,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = K_ESC_Pin|K_RIGHT_Pin|K_LEFT_Pin|K_DOWN_Pin
                           |K_UP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : K_OK_Pin */
   GPIO_InitStruct.Pin = K_OK_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(K_OK_GPIO_Port, &GPIO_InitStruct);
 
 }

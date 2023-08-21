@@ -18,10 +18,10 @@ extern "C" {
                           // set the DD RAM address to 0x80 + 0x00 = 0x80
 #define LINE_TWO    0xc0  // DD RAM Address The starting position of the second line is 0x40
                           // set the DD RAM address to 0x80 + 0x40 = 0xc0
-#define LINE_THREE  0x94  // DD RAM Address The starting position of the second line is 0x14
-                          // set the DD RAM address to 0x80 + 0x14 = 0x94
-#define LINE_FOUR   0xD4  // DD RAM Address The starting position of the second line is 0x54
-                          // set the DD RAM address to 0x80 + 0x54 = 0xD4
+#define LINE_THREE  0x90  // DD RAM Address The starting position of the third line is 0x10
+                          // set the DD RAM address to 0x80 + 0x10 = 0x90
+#define LINE_FOUR   0xD0  // DD RAM Address The starting position of the four line is 0x10
+                          // set the DD RAM address to 0xc0 + 0x10 = 0xD0
 
 	
 bool RW1063_init ( SPI_HandleTypeDef *hspi, GPIO_TypeDef *CS_PORT, uint16_t CS_PIN, GPIO_TypeDef *RS_PORT, uint16_t RS_PIN );

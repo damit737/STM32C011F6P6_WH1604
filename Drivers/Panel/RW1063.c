@@ -16,7 +16,7 @@ uint8_t CGRAM[3][8] = {
 uint8_t MSG1[16]    ="0123456789ABCDEF";
 uint8_t MSG2[16]    ="Have nice day!!!";
 uint8_t MSG3[16]    ="  Good   Luck!!!";
-uint8_t MSG4[16]    ="G o o d  wawa!!!";
+uint8_t MSG4[16]    ="G o o d night!!!";
 
 bool isTransmitActive = false;
 SPI_HandleTypeDef *pRW1063_hspi;
@@ -177,10 +177,10 @@ bool RW1063_init ( SPI_HandleTypeDef *hspi,
 	RW1063_writeString(Cword,MSG1);
 	RW1063_WrCmd(LINE_TWO);
 	RW1063_writeString(Cword,MSG2);
-//	RW1063_WrCmd(LINE_THREE);
-//	RW1063_writeString(Cword,MSG3_1);
-//	RW1063_WrCmd(LINE_FOUR);
-//	RW1063_writeString(Cword,MSG4);
+	RW1063_WrCmd(LINE_THREE);
+	RW1063_writeString(Cword,MSG3);
+	RW1063_WrCmd(LINE_FOUR);
+	RW1063_writeString(Cword,MSG4);
 
 	return true;
 }
