@@ -148,8 +148,13 @@ int main(void)
   {
 		if(ReceiveCompleteFlag == 1)
 		{
+		  RW1063_WrCmd(0x08);//Display off
+		  HAL_Delay(1);
+		  RW1063_WrCmd(0x06);//Entry mode set
+		  HAL_Delay(10);
 		  RW1063_WrCmd(0x01);//CLEAR DISPLAY
 		  HAL_Delay(1);
+		  RW1063_WrCmd(0x0C);//DISPLAY ON,Cursor OFF,Cursor Blink OFF
 		  RW1063_WrCmd(LINE_ONE);
 		  RW1063_writeString(TxIndex-1,&data[0]);
 		  ReceiveCompleteFlag = 0;
